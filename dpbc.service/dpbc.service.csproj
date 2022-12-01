@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\dpbc.entity\dpbc.entity.csproj" />
+    <ProjectReference Include="..\dpbc.infrastructure\dpbc.infrastructure.csproj" />
+    <ProjectReference Include="..\dpbc.repository\dpbc.repository.csproj" />
+  </ItemGroup>
+
+</Project>
