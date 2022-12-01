@@ -28,7 +28,7 @@ namespace dpbc.app
 
                 client.Log += LogAsync;
                 services.GetRequiredService<CommandService>().Log += LogAsync;
-                await client.LoginAsync(TokenType.Bot, "OTYzODkxOTcxODEyODg4NTk2.GqLrQh.3p5_fATcUhB0tmp1FUplPbdzHFO87aLA3Fixxw");
+                await client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("TOKEN"));
                 await client.StartAsync();
 
                 await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
