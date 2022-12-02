@@ -1,6 +1,5 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
-using Discord;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 

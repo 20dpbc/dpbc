@@ -8,9 +8,9 @@ namespace dpbc.repository.Repository
     {
         public PointRepository(IDBContext dbcontext) : base(dbcontext) { }
 
-        public async Task<Point?> GetByUserAsync(ulong id)
+        public async Task<Point?> GetByUserAsync(long id)
         {
-            var res = await _dbcontext.connection.QueryAsync<Point>(@"select * from Point where user_id=@id", param: new { id });
+            var res = await _dbcontext.connection.QueryAsync<Point>(@"select * from Point where user_id=@id and stoped is null", param: new { id });
             return res.FirstOrDefault();
         }
     }

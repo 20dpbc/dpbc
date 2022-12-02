@@ -5,8 +5,8 @@ namespace dpbc.service.Service
 {
     public interface IPointService
     {
-        Task InsertAsync(ulong user_id, ulong message_id);
-        Task<Point?> GetByUserIdAsync(ulong user_id);
-        Task DeleteAsync(Point point);
+        Task<Point> InsertAsync(Point point);
+        Task<Point?> GetByUserIdAsync(long user_id);
+        Task UpdateAsync(Point point);
     }
 }

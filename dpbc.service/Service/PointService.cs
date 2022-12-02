@@ -12,21 +12,23 @@ namespace dpbc.service.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Point?> GetByUserIdAsync(ulong user_id)
+        public async Task<Point?> GetByUserIdAsync(long user_id)
         {
             var point = await _unitOfWork.PointRepository.GetByUserAsync(user_id);
 
             return point;
         }
 
-        public async Task InsertAsync(ulong user_id, ulong message_id)
+        public async Task<Point> InsertAsync(Point point)
         {
-            await _unitOfWork.PointRepository.InsertAsync(new(user_id, message_id));
+            await _unitOfWork.PointRepository.InsertAsync(point);
+
+            return point;
         }
 
-        public async Task DeleteAsync(Point point)
+        public async Task UpdateAsync(Point point)
         {
-            await _unitOfWork.PointRepository.DeleteAsync(point);
+            await _unitOfWork.PointRepository.UpdateAsync(point);
         }
     } 
 }

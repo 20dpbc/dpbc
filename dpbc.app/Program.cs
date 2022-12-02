@@ -28,7 +28,7 @@ namespace dpbc.app
 
                 client.Log += LogAsync;
                 services.GetRequiredService<CommandService>().Log += LogAsync;
-                await client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("TOKEN"));
+                await client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("TOKEN_DISCORD"));
                 await client.StartAsync();
 
                 await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
@@ -45,6 +45,8 @@ namespace dpbc.app
 
         private ServiceProvider ConfigureServices()
         {
+            var conn = Environment.GetEnvironmentVariable("conn");
+
             return new ServiceCollection()
                 .AddSingleton(new DiscordSocketConfig
                 {
@@ -54,13 +56,13 @@ namespace dpbc.app
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
                 .AddSingleton<HttpClient>()
-                .AddSingleton<IDBContext, DBContext>()
+                .AddSingleton<IDBContext>(s => new DBContext(conn!))
                 .AddScoped<IUnitOfWork, UnitOfWork>()
                 .AddScoped<IPointService, PointService>()
                 .AddFluentMigratorCore()
                 .ConfigureRunner(c => c
-                    .AddSQLite()
-                    .WithGlobalConnectionString("DataSource=file::memory:?cache=shared")
+                    .AddSqlServer()
+                    .WithGlobalConnectionString(conn)
                     .ScanIn(Assembly.GetExecutingAssembly()).For.Migrations())
                 .AddLogging(c => c.AddFluentMigratorConsole())
                 .BuildServiceProvider();

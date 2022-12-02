@@ -23,48 +23,31 @@ namespace dpbc.app.Modules
             }
 
             await Context.Channel.DeleteMessageAsync(Context.Message.Id);
-            var point = await _pointService.GetByUserIdAsync(Context.User.Id);            
+            var point = await _pointService.GetByUserIdAsync((long)Context.User.Id);
 
             if (point == null)
             {
-                await ReplyAsync(String.Format("!start_point {0}", Context.User.Mention));
+                await this.OpenPoint(Context.User);               
             }
             else
             {
-                await this.StopPoint(point);
+                point.SetUser(Context.User);
+                await this.ClosePoint(point);
             }
         }
 
-        [Command("start_point")]
-        public async Task StartPoint(IUser? user = null)
+        private async Task OpenPoint(IUser user)
         {
-            if (Context.Message.Channel.Name != "🅿・ʙᴀᴛᴇʀ-ᴘᴏɴᴛᴏ" || !Context.User.IsBot)
-            {
-                return;
-            }
-
-            var message = "👮🏻‍♂️ QRA: " + user.Mention
-                + Environment.NewLine
-                + "📥 Entrada: " + DateTime.Now.ToString("HH:mm")
-                + Environment.NewLine
-                + "📤 Saída:"
-                + Environment.NewLine
-                + "💳 ID: " + ((Discord.WebSocket.SocketGuildUser)user).Nickname.Split("| ").LastOrDefault();
-
-            await Context.Channel.ModifyMessageAsync(Context.Message.Id, m => m.Content = message);
-            await _pointService.InsertAsync(user.Id, Context.Message.Id);
+            Point point = new(user);
+            var message = await ReplyAsync(point.GetOpenMessage());
+            point.SetMessageId(message.Id);
+            await _pointService.InsertAsync(point);
         }
 
-        private async Task StopPoint(Point point) 
+        private async Task ClosePoint(Point point) 
         {
-            var message = await Context.Channel.GetMessageAsync((ulong)point.message_id);
-            if (message == null)
-            {
-                return;
-            }
-
-            await Context.Channel.ModifyMessageAsync((ulong)point.message_id, m => m.Content = message.Content.Replace("Saída:", "Saída: " + DateTime.Now.ToString("HH:mm")));
-            await _pointService.DeleteAsync(point);
+            await Context.Channel.ModifyMessageAsync((ulong)point.message_id, m => m.Content = point.GetCloseMessage());
+            await _pointService.UpdateAsync(point);
         }
     }
 }

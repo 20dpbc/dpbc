@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.Data.Sqlite;
 using System.Data;
 
 namespace dpbc.repository.Repository.Base
@@ -10,6 +11,12 @@ namespace dpbc.repository.Repository.Base
         public DBContext()
         {
             connection = new SqliteConnection("DataSource=file::memory:?cache=shared");
+            connection.Open();
+        }
+
+        public DBContext(string conn)
+        {
+            connection = new SqlConnection(conn);
             connection.Open();
         }
 
