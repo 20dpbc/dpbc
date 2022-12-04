@@ -45,43 +45,48 @@ namespace dpbc.entity.Entity
 
         public string GetOpenMessage()
         {
-            string id = ((SocketGuildUser)this.user).Nickname.ToLower()
-                .Replace(" i ", " | ")
-                .Replace(" l ", " | ")
-                .Split("| ")
-                .LastOrDefault() ?? string.Empty;
-
-            var message = string.Format("👮🏻‍♂️ QRA: {0}{1}📥 Entrada: {2}{3}📤 Saída:{4}💳 ID: {5}",
-                this.user.Mention,
-                Environment.NewLine,
-                this.started.ToString("HH:mm"),
-                Environment.NewLine,
-                Environment.NewLine,
-                id);
-
-            return message;
+            return this.GetMessage();
         }
 
         public string GetCloseMessage()
         {
             this.stoped = DateTime.Now;
-            var msgOut = (DateTime.Now - this.started).TotalHours >= 24 ? "Ponto inválido, mais de 24 horas sem fechar" : this.stoped?.ToString("HH:mm");
-            string id = ((SocketGuildUser)this.user).Nickname.ToLower()
-                .Replace(" i ", " | ")
-                .Replace(" l ", " | ")
-                .Split("| ")
-                .LastOrDefault() ?? string.Empty;
-
+            var closeMessage = this.IsValid() ? this.stoped?.ToString("HH:mm") : "Ponto inválido, mais de 12 horas sem fechar";
+     
+            return this.GetMessage(closeMessage);
+        }
+        
+        private string GetMessage(string? closeMessage = null) 
+        {
             var message = string.Format("👮🏻‍♂️ QRA: {0}{1}📥 Entrada: {2}{3}📤 Saída: {4}{5}💳 ID: {6}",
                 this.user.Mention,
                 Environment.NewLine,
                 this.started.ToString("HH:mm"),
                 Environment.NewLine,
-                msgOut,
+                closeMessage,
                 Environment.NewLine,
-                id);
+                GetIdFromUser());
 
             return message;
+        }
+
+        private string GetIdFromUser()
+        {
+            return ((SocketGuildUser)this.user).Nickname.ToLower()
+                .Replace(" i ", " | ")
+                .Replace(" l ", " | ")
+                .Split("| ")
+                .LastOrDefault() ?? string.Empty;
+        }
+
+        public bool IsValid() 
+        {
+            if ((DateTime.Now - this.started).TotalHours <= 12) 
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

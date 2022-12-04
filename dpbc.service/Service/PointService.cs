@@ -30,5 +30,10 @@ namespace dpbc.service.Service
         {
             await _unitOfWork.PointRepository.UpdateAsync(point);
         }
+
+        public async Task DeleteAsync(Point point)
+        {
+            await _unitOfWork.PointRepository.DeleteAsync(point);
+        }
     } 
 }
