@@ -81,7 +81,7 @@ namespace dpbc.entity.Entity
 
         public bool IsValid() 
         {
-            if ((DateTime.Now - this.started).TotalHours <= 12) 
+            if ((DateTime.Now - this.started).TotalHours >= 12) 
             {
                 return false;
             }
