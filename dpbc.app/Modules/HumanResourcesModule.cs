@@ -46,6 +46,8 @@ namespace dpbc.app.Modules
 
         private async Task ClosePoint(Point point) 
         {
+            point.SetStoped();
+
             if (point.IsValid())
             {
                 await _pointService.UpdateAsync(point);
@@ -53,9 +55,10 @@ namespace dpbc.app.Modules
             else
             {
                 await _pointService.DeleteAsync(point);
+                await this.OpenPoint(point.user);
             }
 
-            await Context.Channel.ModifyMessageAsync((ulong)point.message_id, m => m.Content = point.GetCloseMessage());        
+            await Context.Channel.ModifyMessageAsync((ulong)point.message_id, m => m.Content = point.GetCloseMessage());
         }
     }
 }

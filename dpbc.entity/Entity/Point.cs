@@ -38,6 +38,11 @@ namespace dpbc.entity.Entity
             this.message_id = (long)message_id;
         }
 
+        public void SetStoped()
+        {
+            this.stoped = DateTime.Now;
+        }
+
         public void SetUser(IUser user)
         {
             this.user = user;
@@ -46,11 +51,10 @@ namespace dpbc.entity.Entity
         public string GetOpenMessage()
         {
             return this.GetMessage();
-        }
+        }    
 
         public string GetCloseMessage()
         {
-            this.stoped = DateTime.Now;
             var closeMessage = this.IsValid() ? this.stoped?.ToString("HH:mm") : "Ponto inválido, mais de 12 horas sem fechar";
      
             return this.GetMessage(closeMessage);
