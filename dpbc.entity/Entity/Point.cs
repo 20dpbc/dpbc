@@ -15,7 +15,7 @@ namespace dpbc.entity.Entity
         public DateTime? stoped { get; private set; }
 
         [Write(false)]
-        public IUser user { get; private set; }
+        public IUser? user { get; private set; }
 
         public Point(long id, long user_id, long message_id, DateTime started, DateTime? stoped) 
         {
@@ -63,7 +63,7 @@ namespace dpbc.entity.Entity
         private string GetMessage(string? closeMessage = null) 
         {
             var message = string.Format("👮🏻‍♂️ QRA: {0}{1}📥 Entrada: {2}{3}📤 Saída: {4}{5}💳 ID: {6}",
-                this.user.Mention,
+                this.user?.Mention,
                 Environment.NewLine,
                 this.started.ToString("HH:mm"),
                 Environment.NewLine,
