@@ -14,6 +14,46 @@ namespace dpbc.app.Modules
             _pointService = pointService;
         }
 
+        [Command("topminutos")]
+        public async Task GetTopMinutes(string totalRaw)
+        {
+            if (Context.Message.Channel.Name != "🚨・ᴀᴠɪꜱᴏꜱ" || !int.TryParse(totalRaw, out int total))
+            {
+                return;
+            }
+
+            await Context.Channel.DeleteMessageAsync(Context.Message.Id);
+
+            var users = Context.Guild.Users.Where(x => !x.IsBot).ToList();
+            var pointView = await _pointService.GetTotalMinutes();
+            var message = pointView.GetTopMinutesMessage(Context.User.Mention, users, total);
+
+            if (message == null)
+                return;
+
+            await ReplyAsync(message);
+        }
+
+        [Command("inativos")]
+        public async Task GetAllInactive()
+        {
+            if (Context.Message.Channel.Name != "🚨・ᴀᴠɪꜱᴏꜱ")
+            {
+                return;
+            }
+
+            await Context.Channel.DeleteMessageAsync(Context.Message.Id);
+
+            var users = Context.Guild.Users.Where(x => !x.IsBot).ToList();
+            var pointView = await _pointService.GetTotalMinutes();
+            var message = pointView.GetInactiveMessage(Context.User.Mention, users);
+
+            if (message == null)
+                return;
+
+            await ReplyAsync(message);
+        }
+
         [Command("p")]
         public async Task Point()
         {

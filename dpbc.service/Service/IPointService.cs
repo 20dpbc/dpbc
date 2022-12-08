@@ -7,6 +7,7 @@ namespace dpbc.service.Service
     {
         Task<Point> InsertAsync(Point point);
         Task<Point?> GetByUserIdAsync(long user_id);
+        Task<PointView> GetTotalMinutes();
         Task UpdateAsync(Point point);
         Task DeleteAsync(Point point);
     }
