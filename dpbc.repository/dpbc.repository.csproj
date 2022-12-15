@@ -10,5 +10,4 @@
     <ProjectReference Include="..\dpbc.entity\dpbc.entity.csproj" />
     <ProjectReference Include="..\dpbc.infrastructure\dpbc.infrastructure.csproj" />
   </ItemGroup>
-
 </Project>

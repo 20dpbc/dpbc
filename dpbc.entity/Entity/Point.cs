@@ -40,7 +40,7 @@ namespace dpbc.entity.Entity
 
         public void SetStoped()
         {
-            this.stoped = DateTime.Now;
+            this.stoped = this.IsValid() ? DateTime.Now : this.started;
         }
 
         public void SetUser(IUser user)
@@ -55,8 +55,7 @@ namespace dpbc.entity.Entity
 
         public string GetCloseMessage()
         {
-            var closeMessage = this.IsValid() ? this.stoped?.ToString("HH:mm") : "Ponto inválido, mais de 12 horas sem fechar";
-     
+            var closeMessage = this.IsValid() ? this.stoped?.ToString("HH:mm") : "Ponto inválido";     
             return this.GetMessage(closeMessage);
         }
         
@@ -76,6 +75,9 @@ namespace dpbc.entity.Entity
 
         private string GetIdFromUser()
         {
+            if (this.user == null)
+                return string.Empty;
+
             return ((SocketGuildUser)this.user).Nickname.ToLower()
                 .Replace(" i ", " | ")
                 .Replace(" l ", " | ")
@@ -85,7 +87,7 @@ namespace dpbc.entity.Entity
 
         public bool IsValid() 
         {
-            if ((DateTime.Now - this.started).TotalHours >= 12) 
+            if ((DateTime.Now - this.started).TotalHours >= 16) 
             {
                 return false;
             }

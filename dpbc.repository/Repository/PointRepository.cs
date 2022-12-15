@@ -14,9 +14,9 @@ namespace dpbc.repository.Repository
             return res.FirstOrDefault();
         }
 
-        public async Task<PointView> GetTotalMinutes()
+        public async Task<PointView> GetTotalMinutes(int days)
         {
-            var res = await _dbcontext.connection.QueryAsync<(long user_id, int total_minutes)>(@"select user_id, sum(datepart(minute, stoped - started)) total_minutes from point where started > getdate()-6 and stoped is not null group by user_id");
+            var res = await _dbcontext.connection.QueryAsync<(long user_id, int total_minutes)>(@"select user_id, sum(datepart(minute, stoped - started)) total_minutes from point where started > getdate()-@days and stoped is not null group by user_id", param: new { days });
             
             return new(res.Select(x => new Tuple<long, int>(x.user_id, x.total_minutes)).ToList());
         }

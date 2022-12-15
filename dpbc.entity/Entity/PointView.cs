@@ -41,7 +41,7 @@ namespace dpbc.entity.Entity
             return message;
         }
 
-        public string? GetInactiveMessage(string responsibleUser, List<SocketGuildUser> users) 
+        public string? GetInactiveMessage(string responsibleUser, List<SocketGuildUser> users, int days) 
         {
             var query = (
                 from us in users
@@ -57,7 +57,7 @@ namespace dpbc.entity.Entity
             if (query.Count() == 0)
                 return null;
 
-            string message = string.Format("Secretaria de Segurança Pública\r\nPolicia Militar de Brazuca City\r\nCorregedoria Do 20º DPBC\r\n\r\nEu {0}, no uso de minhas atribuições, venho por meio desta informar o desligamento dos seguintes policiais abaixo por inatividade de mais de 6 dias.\r\n", responsibleUser);
+            string message = string.Format("Secretaria de Segurança Pública\r\nPolicia Militar de Brazuca City\r\nCorregedoria Do 20º DPBC\r\n\r\nEu {0}, no uso de minhas atribuições, venho por meio desta informar o desligamento dos seguintes policiais abaixo por inatividade de mais de {1} dias.\r\n", responsibleUser, days);
 
             foreach(var user in query)
             {

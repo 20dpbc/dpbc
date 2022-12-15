@@ -18,14 +18,12 @@ namespace dpbc.app.Modules
         public async Task GetTopMinutes(string totalRaw)
         {
             if (Context.Message.Channel.Name != "🚨・ᴀᴠɪꜱᴏꜱ" || !int.TryParse(totalRaw, out int total))
-            {
                 return;
-            }
 
             await Context.Channel.DeleteMessageAsync(Context.Message.Id);
 
             var users = Context.Guild.Users.Where(x => !x.IsBot).ToList();
-            var pointView = await _pointService.GetTotalMinutes();
+            var pointView = await _pointService.GetTotalMinutes(7);
             var message = pointView.GetTopMinutesMessage(Context.User.Mention, users, total);
 
             if (message == null)
@@ -35,18 +33,19 @@ namespace dpbc.app.Modules
         }
 
         [Command("inativos")]
-        public async Task GetAllInactive()
+        public async Task GetAllInactive(string daysRaw)
         {
             if (Context.Message.Channel.Name != "🚨・ᴀᴠɪꜱᴏꜱ")
-            {
                 return;
-            }
+
+            int.TryParse(daysRaw, out int days);
+            days = days == 0 ? 7 : days;
 
             await Context.Channel.DeleteMessageAsync(Context.Message.Id);
 
             var users = Context.Guild.Users.Where(x => !x.IsBot).ToList();
-            var pointView = await _pointService.GetTotalMinutes();
-            var message = pointView.GetInactiveMessage(Context.User.Mention, users);
+            var pointView = await _pointService.GetTotalMinutes(days);
+            var message = pointView.GetInactiveMessage(Context.User.Mention, users, days);
 
             if (message == null)
                 return;
@@ -58,17 +57,13 @@ namespace dpbc.app.Modules
         public async Task Point()
         {
             if (Context.Message.Channel.Name != "🅿・ʙᴀᴛᴇʀ-ᴘᴏɴᴛᴏ")
-            {
                 return;
-            }
 
             await Context.Channel.DeleteMessageAsync(Context.Message.Id);
             var point = await _pointService.GetByUserIdAsync((long)Context.User.Id);
 
             if (point == null)
-            {
-                await this.OpenPoint(Context.User);               
-            }
+                await this.OpenPoint(Context.User); 
             else
             {
                 point.SetUser(Context.User);
@@ -76,8 +71,11 @@ namespace dpbc.app.Modules
             }
         }
 
-        private async Task OpenPoint(IUser user)
+        private async Task OpenPoint(IUser? user)
         {
+            if (user == null)
+                return;
+
             Point point = new(user);
             var message = await ReplyAsync(point.GetOpenMessage());
             point.SetMessageId(message.Id);
@@ -87,18 +85,11 @@ namespace dpbc.app.Modules
         private async Task ClosePoint(Point point) 
         {
             point.SetStoped();
-
-            if (point.IsValid())
-            {
-                await _pointService.UpdateAsync(point);
-            }
-            else
-            {
-                await _pointService.DeleteAsync(point);
-                await this.OpenPoint(point.user);
-            }
-
+            await _pointService.UpdateAsync(point);
             await Context.Channel.ModifyMessageAsync((ulong)point.message_id, m => m.Content = point.GetCloseMessage());
+
+            if (!point.IsValid())
+                await this.OpenPoint(point.user);
         }
     }
 }

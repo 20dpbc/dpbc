@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace dpbc.repository.Repository.Base
+﻿namespace dpbc.repository.Repository.Base
 {
     public class UnitOfWork : IUnitOfWork
     {

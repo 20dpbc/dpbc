@@ -19,9 +19,9 @@ namespace dpbc.service.Service
             return point;
         }
 
-        public async Task<PointView> GetTotalMinutes()
+        public async Task<PointView> GetTotalMinutes(int days)
         {
-            return await _unitOfWork.PointRepository.GetTotalMinutes();
+            return await _unitOfWork.PointRepository.GetTotalMinutes(days);
         }
 
         public async Task<Point> InsertAsync(Point point)
