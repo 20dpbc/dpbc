@@ -1,5 +1,4 @@
-﻿using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
 using dpbc.entity.Entity;
 using dpbc.service.Service;
 
@@ -8,13 +7,15 @@ namespace dpbc.app.Modules
     public class HumanResourcesModule : ModuleBase<SocketCommandContext>
     {
         private readonly IPointService _pointService;
+        private readonly IUserService _userService;
 
-        public HumanResourcesModule(IPointService pointService)
+        public HumanResourcesModule(IPointService pointService, IUserService userService)
         {
             _pointService = pointService;
+            _userService = userService;
         }
 
-        [Command("topminutos")]
+        [Command("minutes")]
         public async Task GetTopMinutes(string totalRaw)
         {
             if (Context.Message.Channel.Name != "🚨・ᴀᴠɪꜱᴏꜱ" || !int.TryParse(totalRaw, out int total))
@@ -22,9 +23,8 @@ namespace dpbc.app.Modules
 
             await Context.Channel.DeleteMessageAsync(Context.Message.Id);
 
-            var users = Context.Guild.Users.Where(x => !x.IsBot).ToList();
             var pointView = await _pointService.GetTotalMinutes(7);
-            var message = pointView.GetTopMinutesMessage(Context.User.Mention, users, total);
+            var message = pointView.GetTopMinutesMessage(Context.User.Mention, total);
 
             if (message == null)
                 return;
@@ -32,7 +32,7 @@ namespace dpbc.app.Modules
             await ReplyAsync(message);
         }
 
-        [Command("inativos")]
+        [Command("inactives")]
         public async Task GetAllInactive(string daysRaw)
         {
             if (Context.Message.Channel.Name != "🚨・ᴀᴠɪꜱᴏꜱ")
@@ -42,10 +42,8 @@ namespace dpbc.app.Modules
             days = days == 0 ? 7 : days;
 
             await Context.Channel.DeleteMessageAsync(Context.Message.Id);
-
-            var users = Context.Guild.Users.Where(x => !x.IsBot).ToList();
             var pointView = await _pointService.GetTotalMinutes(days);
-            var message = pointView.GetInactiveMessage(Context.User.Mention, users, days);
+            var message = pointView.GetInactiveMessage(Context.User.Mention, days);
 
             if (message == null)
                 return;
@@ -60,22 +58,27 @@ namespace dpbc.app.Modules
                 return;
 
             await Context.Channel.DeleteMessageAsync(Context.Message.Id);
-            var point = await _pointService.GetByUserIdAsync((long)Context.User.Id);
+            var user = await _userService.GetByUUID(Context.User.Id.ToString());
+
+            if (user == null)
+            {
+                await ReplyAsync(string.Format("Policial {0} não cadastrado", Context.User.Mention));
+                return;
+            }
+
+            var point = await _pointService.GetByUserIdAsync(user.id);
 
             if (point == null)
-                await this.OpenPoint(Context.User); 
+                await this.OpenPoint(user); 
             else
             {
-                point.SetUser(Context.User);
+                point.SetUser(user);
                 await this.ClosePoint(point);
             }
         }
 
-        private async Task OpenPoint(IUser? user)
+        private async Task OpenPoint(User user)
         {
-            if (user == null)
-                return;
-
             Point point = new(user);
             var message = await ReplyAsync(point.GetOpenMessage());
             point.SetMessageId(message.Id);
@@ -84,7 +87,7 @@ namespace dpbc.app.Modules
 
         private async Task ClosePoint(Point point) 
         {
-            point.SetStoped();
+            point.Stoped();
             await _pointService.UpdateAsync(point);
             await Context.Channel.ModifyMessageAsync((ulong)point.message_id, m => m.Content = point.GetCloseMessage());
 

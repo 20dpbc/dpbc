@@ -1,6 +1,4 @@
 ﻿using Dapper.Contrib.Extensions;
-using Discord;
-using Discord.WebSocket;
 
 namespace dpbc.entity.Entity
 {
@@ -13,10 +11,11 @@ namespace dpbc.entity.Entity
         public long message_id { get; private set; }
         public DateTime started { get; private set; }
         public DateTime? stoped { get; private set; }
-
+       
         [Write(false)]
-        public IUser? user { get; private set; }
+        public User user { get; private set; }
 
+        #pragma warning disable CS8618
         public Point(long id, long user_id, long message_id, DateTime started, DateTime? stoped) 
         {
             this.id = id;
@@ -25,10 +24,11 @@ namespace dpbc.entity.Entity
             this.started = started;
             this.stoped = stoped;
         }
+        #pragma warning restore CS8618
 
-        public Point(IUser user) 
+        public Point(User user)
         {
-            this.user_id = (long)user.Id;
+            this.user_id = user.id;
             this.user = user;
             this.started = DateTime.Now;
         }
@@ -38,12 +38,12 @@ namespace dpbc.entity.Entity
             this.message_id = (long)message_id;
         }
 
-        public void SetStoped()
+        public void Stoped()
         {
             this.stoped = this.IsValid() ? DateTime.Now : this.started;
         }
 
-        public void SetUser(IUser user)
+        public void SetUser(User user)
         {
             this.user = user;
         }
@@ -62,7 +62,7 @@ namespace dpbc.entity.Entity
         private string GetMessage(string? closeMessage = null) 
         {
             var message = string.Format("👮🏻‍♂️ QRA: {0}{1}📥 Entrada: {2}{3}📤 Saída: {4}{5}💳 ID: {6}",
-                this.user?.Mention,
+                this.user?.mention,
                 Environment.NewLine,
                 this.started.ToString("HH:mm"),
                 Environment.NewLine,
@@ -78,7 +78,7 @@ namespace dpbc.entity.Entity
             if (this.user == null)
                 return string.Empty;
 
-            return ((SocketGuildUser)this.user).Nickname.ToLower()
+            return this.user.name.ToLower()
                 .Replace(" i ", " | ")
                 .Replace(" l ", " | ")
                 .Split("| ")

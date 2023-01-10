@@ -1,5 +1,4 @@
 ﻿using dpbc.entity.Entity;
-using dpbc.repository.Repository.Base;
 
 namespace dpbc.repository.Repository
 {

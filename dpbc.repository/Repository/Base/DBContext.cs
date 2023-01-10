@@ -2,7 +2,7 @@
 using Microsoft.Data.Sqlite;
 using System.Data;
 
-namespace dpbc.repository.Repository.Base
+namespace dpbc.repository.Repository
 {
     public class DBContext : IDBContext
     {

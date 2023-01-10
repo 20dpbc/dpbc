@@ -2,11 +2,10 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using dpbc.app.Services;
-using dpbc.repository.Repository.Base;
+using dpbc.repository.Repository;
 using dpbc.service.Service;
 using FluentMigrator.Runner;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace dpbc.app
 {
@@ -59,11 +58,12 @@ namespace dpbc.app
                 .AddSingleton<IDBContext>(s => new DBContext(conn!))
                 .AddScoped<IUnitOfWork, UnitOfWork>()
                 .AddScoped<IPointService, PointService>()
+                .AddScoped<IUserService, UserService>()
                 .AddFluentMigratorCore()
                 .ConfigureRunner(c => c
                     .AddSqlServer()
                     .WithGlobalConnectionString(conn)
-                    .ScanIn(Assembly.GetExecutingAssembly()).For.Migrations())
+                    .ScanIn(AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.Contains("dpbc.repository")).ToArray()).For.Migrations())
                 .AddLogging(c => c.AddFluentMigratorConsole())
                 .BuildServiceProvider();
         }

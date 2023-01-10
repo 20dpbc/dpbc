@@ -1,4 +1,4 @@
-﻿namespace dpbc.repository.Repository.Base
+﻿namespace dpbc.repository.Repository
 {
     public interface IRepository<TEntity> where TEntity : class
     {

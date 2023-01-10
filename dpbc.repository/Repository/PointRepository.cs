@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using dpbc.entity.Entity;
-using dpbc.repository.Repository.Base;
 
 namespace dpbc.repository.Repository
 {
@@ -8,17 +7,28 @@ namespace dpbc.repository.Repository
     {
         public PointRepository(IDBContext dbcontext) : base(dbcontext) { }
 
-        public async Task<Point?> GetByUserAsync(long id)
+        public async Task<Point?> GetByUserAsync(long user_id)
         {
-            var res = await _dbcontext.connection.QueryAsync<Point>(@"select * from Point where user_id=@id and stoped is null", param: new { id });
+            var res = await _dbcontext.connection.QueryAsync<Point>(@"select * from Point where user_id=@user_id and stoped is null", param: new { user_id });
             return res.FirstOrDefault();
         }
 
         public async Task<PointView> GetTotalMinutes(int days)
         {
-            var res = await _dbcontext.connection.QueryAsync<(long user_id, int total_minutes)>(@"select user_id, sum(datepart(minute, stoped - started)) total_minutes from point where started > getdate()-@days and stoped is not null group by user_id", param: new { days });
-            
-            return new(res.Select(x => new Tuple<long, int>(x.user_id, x.total_minutes)).ToList());
+            string sql = @"
+            select 
+	            u.mention, 
+	            iif(sum(datediff(minute, p.started, p.stoped)) is null, 0, sum(datediff(minute, p.started, p.stoped))) total_minutes 
+            from 
+	            [User] u 
+            left join 
+	            Point p on u.id = p.user_id 
+            where
+	            p.started > getdate() - @days or p.started is null
+            group by u.mention";
+
+            var res = await _dbcontext.connection.QueryAsync<(string mention, int total_minutes)>(sql, param: new { days });            
+            return new(res.Select(x => new Tuple<string, int>(x.mention, x.total_minutes)).ToList());
         }
     }
 }
